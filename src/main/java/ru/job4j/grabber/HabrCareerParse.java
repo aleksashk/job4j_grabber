@@ -37,9 +37,9 @@ public class HabrCareerParse implements DateTimeParser {
                 Element linkElement = titleElement.child(0);
                 String vacancyName = titleElement.text();
                 Element dateElement = row.select(".vacancy-card__date").first();
-                String vacancyDate = dateElement.text();
+                String vacancyDate = dateElement.attr("datetime");
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-                System.out.printf("%s %s %s%n", vacancyName, vacancyDate, link);
+                System.out.printf("%s %s%n", vacancyName, link);
             });
         }
     }
