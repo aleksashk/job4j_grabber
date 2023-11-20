@@ -5,6 +5,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.*;
 import java.util.Properties;
 
 import static org.quartz.JobBuilder.newJob;
@@ -13,12 +14,21 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 public class AlertRabbit {
     public static void main(String[] args) {
-        try {
-            Properties properties = loadProperties();
+        Properties properties = loadProperties();
+        try (Connection connection = DriverManager.getConnection(
+                properties.getProperty("db.url"),
+                properties.getProperty("db.username"),
+                properties.getProperty("db.password")
+        )) {
+
             int interval = Integer.parseInt(properties.getProperty("rabbit.interval"));
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            JobDetail job = newJob(Rabbit.class).build();
+            JobDataMap jobDataMap = new JobDataMap();
+            jobDataMap.put("connection", connection);
+            JobDetail job = newJob(Rabbit.class)
+                    .usingJobData(jobDataMap)
+                    .build();
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(interval)
                     .repeatForever();
@@ -27,7 +37,10 @@ public class AlertRabbit {
                     .withSchedule(times)
                     .build();
             scheduler.scheduleJob(job, trigger);
-        } catch (SchedulerException se) {
+            int runtimeApp = Integer.parseInt(properties.getProperty("application.runtime", "10000"));
+            Thread.sleep(runtimeApp);
+            scheduler.shutdown();
+        } catch (Exception se) {
             se.printStackTrace();
         }
     }
@@ -35,7 +48,13 @@ public class AlertRabbit {
     public static class Rabbit implements Job {
         @Override
         public void execute(JobExecutionContext context) {
-            System.out.println("Rabbit runs here ...");
+            Connection connection = (Connection) context.getJobDetail().getJobDataMap().get("connection");
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO rabbit (created_date) VALUES (?)")) {
+                statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                statement.executeUpdate();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
