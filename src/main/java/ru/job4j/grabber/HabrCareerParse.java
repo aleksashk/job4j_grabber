@@ -20,6 +20,7 @@ public class HabrCareerParse {
         Properties properties = loadProperties();
         String delimiter = "-----------------------------------";
         String msg = "Page N";
+        String msgDescription = "Описание вакансии: ";
         int numberOfPage = Integer.parseInt(properties.getProperty("habr.number.pages", "1"));
         for (int i = 1; i <= numberOfPage; i++) {
             System.out.printf("%s%s%d%s%n", delimiter, msg, i, delimiter);
@@ -47,5 +48,22 @@ public class HabrCareerParse {
             e.printStackTrace();
         }
         return properties;
+    }
+
+    private static String retrieveDescription(String link) throws IOException {
+        Connection connection = Jsoup.connect(link);
+        Document document = connection.get();
+        Elements headers = document.select(".vacancy-description__text h3");
+        StringBuilder formattedDescription = new StringBuilder();
+        for (Element header : headers) {
+            formattedDescription.append(header.text()).append(":\n\n");
+
+            Elements lists = header.nextElementSibling().select("li");
+            for (Element listItem : lists) {
+                formattedDescription.append(" - ").append(listItem.text()).append("\n");
+            }
+            formattedDescription.append("\n");
+        }
+        return formattedDescription.toString();
     }
 }
