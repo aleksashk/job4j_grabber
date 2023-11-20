@@ -1,4 +1,4 @@
-package ru.job4j.grabber;
+package ru.job4j.utils;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,10 +8,9 @@ import java.time.format.DateTimeParseException;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-class HabrCareerParseTest {
-
+class HabrCareerDateTimeParserTest {
     @Test
     void parseIsoFormattedDateSuccess() {
         String parse = "2023-11-10T21:41:32+03:00";
