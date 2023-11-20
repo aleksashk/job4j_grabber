@@ -74,7 +74,7 @@ public class Post {
                 + ", title='" + title + '\''
                 + ", link='" + link + '\''
                 + ", description='" + description + '\''
-                + ", created=" + created +
-                '}';
+                + ", created=" + created
+                + '}';
     }
 }
