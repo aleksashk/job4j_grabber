@@ -5,7 +5,7 @@ import java.time.format.DateTimeParseException;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-public class HabrCareerDateTimeParser implements DateTimeParser{
+public class HabrCareerDateTimeParser implements DateTimeParser {
     @Override
     public LocalDateTime parse(String parse) {
         try {
