@@ -109,7 +109,6 @@ public class PsqlStore implements Store {
             System.out.println(post + " id = " + post.getId());
         }
 
-
         int targetId = 1;
         Post postById = psqlStore.findById(targetId);
         if (postById != null) {
