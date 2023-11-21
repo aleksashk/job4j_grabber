@@ -1,7 +1,10 @@
 package ru.job4j.grabber.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class Post {
     private int id;
@@ -69,12 +72,8 @@ public class Post {
 
     @Override
     public String toString() {
-        return "Post{"
-                + "id=" + id
-                + ", title='" + title + '\''
-                + ", link='" + link + '\''
-                + ", description='" + description + '\''
-                + ", created=" + created
-                + '}';
+        DateTimeFormatter formatter = ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        String formattedDate = getCreated().format(formatter);
+        return String.format("%s %s %s", getTitle(), formattedDate, getLink());
     }
 }
