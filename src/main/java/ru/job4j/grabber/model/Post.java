@@ -8,10 +8,21 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class Post {
     private int id;
-    private String title;
+    private String name;
     private String link;
     private String description;
     private LocalDateTime created;
+
+    public Post() {
+    }
+
+    public Post(int id, String name, String link, String description, LocalDateTime created) {
+        this.id = id;
+        this.name = name;
+        this.link = link;
+        this.description = description;
+        this.created = created;
+    }
 
     public int getId() {
         return id;
@@ -21,12 +32,12 @@ public class Post {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getLink() {
@@ -74,6 +85,6 @@ public class Post {
     public String toString() {
         DateTimeFormatter formatter = ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         String formattedDate = getCreated().format(formatter);
-        return String.format("%s %s %s", getTitle(), formattedDate, getLink());
+        return String.format("%s %s %s", getName(), formattedDate, getLink());
     }
 }
