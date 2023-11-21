@@ -20,7 +20,6 @@ public class HabrCareerParse {
         Properties properties = loadProperties();
         String delimiter = "-----------------------------------";
         String msg = "Page N";
-        String msgDescription = "Описание вакансии: ";
         int numberOfPage = Integer.parseInt(properties.getProperty("habr.number.pages", "1"));
         for (int i = 1; i <= numberOfPage; i++) {
             System.out.printf("%s%s%d%s%n", delimiter, msg, i, delimiter);
