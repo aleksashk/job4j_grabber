@@ -48,18 +48,22 @@ public class PsqlStore implements Store {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     posts.add(
-                            new Post(
-                                    resultSet.getInt("id"),
-                                    resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getString("link"),
-                                    resultSet.getTimestamp("created").toLocalDateTime()));
+                            getPost(resultSet));
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error getting posts", e);
         }
         return posts;
+    }
+
+    private static Post getPost(ResultSet resultSet) throws SQLException {
+        return new Post(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getString("description"),
+                resultSet.getString("link"),
+                resultSet.getTimestamp("created").toLocalDateTime());
     }
 
     @Override
@@ -69,12 +73,7 @@ public class PsqlStore implements Store {
             preparedStatement.setInt(1, id);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new Post(
-                            resultSet.getInt("id"),
-                            resultSet.getString("name"),
-                            resultSet.getString("description"),
-                            resultSet.getString("link"),
-                            resultSet.getTimestamp("created").toLocalDateTime());
+                    return getPost(resultSet);
                 }
             }
         } catch (SQLException e) {
