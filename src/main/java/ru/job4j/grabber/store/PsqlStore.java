@@ -3,7 +3,6 @@ package ru.job4j.grabber.store;
 import ru.job4j.grabber.model.Post;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -23,7 +22,6 @@ public class PsqlStore implements Store {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-
     }
 
     @Override
@@ -86,41 +84,6 @@ public class PsqlStore implements Store {
     public void close() throws Exception {
         if (cnn != null) {
             cnn.close();
-        }
-    }
-
-    public static void main(String[] args) {
-        Properties properties = new Properties();
-        properties.setProperty("jdbc.driver", "org.postgresql.Driver");
-        properties.setProperty("jdbc.url", "jdbc:postgresql://localhost:5432/psql_store");
-        properties.setProperty("jdbc.username", "postgres");
-        properties.setProperty("jdbc.password", "password");
-
-        PsqlStore psqlStore = new PsqlStore(properties);
-
-        Post post1 = new Post(1, "Post#1", "This is a post#1", "http://link.to/post1", LocalDateTime.now());
-        Post post2 = new Post(2, "Post#2", "This is a post#2", "http://link.to/post2", LocalDateTime.now());
-        psqlStore.save(post1);
-        psqlStore.save(post2);
-
-        System.out.println("All posts: ");
-        for (Post post : psqlStore.getAll()) {
-            System.out.println(post + " id = " + post.getId());
-        }
-
-        int targetId = 1;
-        Post postById = psqlStore.findById(targetId);
-        if (postById != null) {
-            System.out.println("Post was find by id: " + targetId + " is: ");
-            System.out.println(postById);
-        } else {
-            System.out.println("Post with id: " + targetId + " didn't find.");
-        }
-
-        try {
-            psqlStore.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

@@ -7,8 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.extractor.Parse;
 import ru.job4j.grabber.model.Post;
-import ru.job4j.utils.DateTimeParser;
-import ru.job4j.utils.HabrCareerDateTimeParser;
+import ru.job4j.grabber.utils.DateTimeParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,25 +23,7 @@ public class HabrCareerParse implements Parse {
         this.dateTimeParser = dateTimeParser;
     }
 
-    public static void main(String[] args) throws IOException {
-        Properties properties = loadProperties();
-
-        int numberOfPage = Integer.parseInt(properties.getProperty("habr.number.pages", "1"));
-        String sourceLink = properties.getProperty("source.link", "https://career.habr.com");
-        String sourcePrefix = properties.getProperty("source.prefix", "/vacancies?page=");
-        String sourceSuffix = properties.getProperty("source.suffix", "&q=Java%20developer&type=all");
-
-        DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
-        HabrCareerParse parser = new HabrCareerParse(dateTimeParser);
-
-        for (int i = 1; i <= numberOfPage; i++) {
-            String fullLink = "%s%s%d%s".formatted(sourceLink, sourcePrefix, i, sourceSuffix);
-            List<Post> posts = parser.list(fullLink);
-            parser.printPosts(posts, i);
-        }
-    }
-
-    private static Properties loadProperties() {
+    public static Properties loadProperties() {
         Properties properties = new Properties();
         try (InputStream in = HabrCareerParse.class.getClassLoader().getResourceAsStream("habrcareer.properties")) {
             properties.load(in);
@@ -114,10 +95,5 @@ public class HabrCareerParse implements Parse {
         }
 
         return posts;
-    }
-
-    private void printPosts(List<Post> posts, int pageNumber) {
-        System.out.println("--------------------------------------Page " + pageNumber + "----------------------------");
-        posts.forEach(System.out::println);
     }
 }
