@@ -95,4 +95,5 @@ public class Grabber implements Grab {
         var time = Integer.parseInt(cfg.getProperty("time"));
         new Grabber(parse, store, scheduler, time).init();
     }
+
 }
