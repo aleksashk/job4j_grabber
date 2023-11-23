@@ -9,7 +9,12 @@ import ru.job4j.grabber.store.PsqlStore;
 import ru.job4j.grabber.store.Store;
 import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,11 +29,14 @@ public class Grabber implements Grab {
     private final Scheduler scheduler;
     private final int time;
 
-    public Grabber(Parse parse, Store store, Scheduler scheduler, int time) {
-        this.parse = parse;
-        this.store = store;
-        this.scheduler = scheduler;
-        this.time = time;
+    private final Properties cfg;
+
+    public Grabber(Properties cfg) throws SchedulerException {
+        this.cfg = cfg;
+        this.parse = new HabrCareerParse(new HabrCareerDateTimeParser());
+        this.store = new PsqlStore(cfg);
+        this.scheduler = StdSchedulerFactory.getDefaultScheduler();
+        this.time = Integer.parseInt(cfg.getProperty("time"));
     }
 
     @Override
@@ -81,18 +89,34 @@ public class Grabber implements Grab {
             posts.forEach(store::save);
         }
     }
+    public void web(Store store) {
+        new Thread(() -> {
+            try (ServerSocket server = new ServerSocket(Integer.parseInt(cfg.getProperty("port")))) {
+                while (!server.isClosed()) {
+                    Socket socket = server.accept();
+                    try (OutputStream out = socket.getOutputStream()) {
+                        out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
+                        for (Post post : store.getAll()) {
+                            out.write(post.toString().getBytes(Charset.forName("Windows-1251")));
+                            out.write(System.lineSeparator().getBytes());
+                        }
+                    } catch (IOException io) {
+                        io.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
     public static void main(String[] args) throws Exception {
-        var cfg = new Properties();
-        try (InputStream in = Grabber.class.getClassLoader()
-                .getResourceAsStream("app.properties")) {
+        Properties cfg = new Properties();
+        try (InputStream in = Grabber.class.getClassLoader().getResourceAsStream("app.properties")) {
             cfg.load(in);
         }
-        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
-        var parse = new HabrCareerParse(new HabrCareerDateTimeParser());
-        var store = new PsqlStore(cfg);
-        var time = Integer.parseInt(cfg.getProperty("time"));
-        new Grabber(parse, store, scheduler, time).init();
+        Grabber grab = new Grabber(cfg);
+        grab.init();
+        grab.web(grab.store);
     }
 }
