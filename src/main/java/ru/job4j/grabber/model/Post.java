@@ -83,8 +83,8 @@ public class Post {
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = ofPattern("yyyy-MM-dd HH:mm");
         String formattedDate = getCreated().format(formatter);
-        return String.format("%s %s %s", getName(), formattedDate, getLink());
+        return String.format("Вакансия: %s%nСсылка: %s%nОписание: %s%nДата создания: %s%n", getName(), getLink(), getDescription(), formattedDate);
     }
 }
