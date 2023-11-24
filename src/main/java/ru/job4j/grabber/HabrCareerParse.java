@@ -37,18 +37,16 @@ public class HabrCareerParse implements Parse {
         try {
             Connection connection = Jsoup.connect(link);
             Document document = connection.get();
-            Elements headers = document.select(".vacancy-description__text h3");
+            Element descriptionElement = document.selectFirst(".vacancy-description__text");
             StringBuilder formattedDescription = new StringBuilder();
-            for (Element header : headers) {
-                formattedDescription.append(header.text()).append(":\n\n");
 
-                Elements lists = header.nextElementSibling().select("li");
-                for (Element listItem : lists) {
-                    formattedDescription.append(" - ").append(listItem.text()).append("\n");
+            if (descriptionElement != null) {
+                for (Element paragraph : descriptionElement.select("p")) {
+                    formattedDescription.append(paragraph.text()).append("\n\n");
                 }
-                formattedDescription.append("\n");
             }
-            return formattedDescription.toString();
+
+            return formattedDescription.toString().trim();
         } catch (IOException e) {
             System.err.println("Ошибка при извлечении описания вакансии: " + e.getMessage());
             return "Описание не доступно.";
@@ -65,15 +63,16 @@ public class HabrCareerParse implements Parse {
             Elements rows = document.select(".vacancy-card__inner");
 
             rows.forEach(row -> {
-                Element titleElement = row.select(".vacancy-card__title").first();
+                Element titleElement = row.select(".vacancy-card__title a").first();
                 if (titleElement != null) {
-                    Element linkElement = titleElement.child(0);
                     String vacancyName = titleElement.text();
                     Element dateElement = row.select("time.basic-date").first();
 
                     if (dateElement != null) {
                         String vacancyDate = dateElement.attr("datetime");
-                        String vacancyLink = link.substring(0, link.indexOf("/vacancies")) + linkElement.attr("href");
+                        System.out.println("datetime: " + vacancyDate);
+                        String vacancyLink = link.substring(0, link.indexOf("/vacancies")) + titleElement.attr("href");
+                        System.out.println("vacancyLink: " + vacancyLink);
                         Post post = new Post();
                         post.setName(vacancyName);
                         post.setLink(vacancyLink);

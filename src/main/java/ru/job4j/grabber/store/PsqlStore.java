@@ -26,11 +26,11 @@ public class PsqlStore implements Store {
 
     @Override
     public void save(Post post) {
-        String script = "insert into post(name, description, link, created) values(?, ?, ?, ?) on conflict (link) do nothing";
+        String script = "insert into post(name, link, description, created) values(?, ?, ?, ?) on conflict (link) do nothing";
         try (PreparedStatement preparedStatement = cnn.prepareStatement(script)) {
             preparedStatement.setString(1, post.getName());
-            preparedStatement.setString(2, post.getDescription());
-            preparedStatement.setString(3, post.getLink());
+            preparedStatement.setString(2, post.getLink());
+            preparedStatement.setString(3, post.getDescription());
             preparedStatement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -59,8 +59,8 @@ public class PsqlStore implements Store {
         return new Post(
                 resultSet.getInt("id"),
                 resultSet.getString("name"),
-                resultSet.getString("description"),
                 resultSet.getString("link"),
+                resultSet.getString("description"),
                 resultSet.getTimestamp("created").toLocalDateTime());
     }
 
